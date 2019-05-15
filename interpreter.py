@@ -37,7 +37,16 @@ def lex(chars_iter):
 
         elif re.match("[a-zA-Z_]", c):
             yield ("Letter", c)
+        # literal => 0 | NonZeroDigit Digit*
+        elif c == "0":
+          # check if next value is letter or int
+          if c.next.isalpha():
+            yield ("Literal", c)
+          while c.next
 
+
+
+        # identifier => letter [letter | digit]*
         else:
             raise Exception(
                 "Error during tokenization process! Unrecognized character: '" + c + "'.")
