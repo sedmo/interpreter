@@ -1,56 +1,38 @@
 import re
 
-class PeekableStream:
-    def __init__(self, iterator):
-        self.iterator = iter(iterator)
-        self._fill()
-
-    def _fill(self):
-        try:
-            self.next = next(self.iterator)
-        except StopIteration:
-            self.next = None
-
-    def move_next(self):
-        ret = self.next
-        self._fill()
-        return ret
-
-
-def lex(chars_iter):
-    chars = PeekableStream(chars_iter)
-    while chars.next is not None:
-        c = chars.move_next()
-        if c in " \n":  # Ignore white space
-            pass
-        elif c in "+-*":  # Special characters
-            yield ("Operator", c)
-
-        elif c in "();=":
-            yield (c, "")
-
-        elif re.match("[1-9]", c):
-            yield ("NonZeroDigit", c)
-
-        elif re.match("[0-9]", c):
-            yield ("Digit", c)
-
-        elif re.match("[a-zA-Z_]", c):
-            yield ("Letter", c)
-        # literal => 0 | NonZeroDigit Digit*
-        elif c == "0":
-          # check if next value is letter or int
-          if c.next.isalpha():
-            yield ("Literal", c)
-          while c.next
-
-
-
-        # identifier => letter [letter | digit]*
-        else:
-            raise Exception(
-                "Error during tokenization process! Unrecognized character: '" + c + "'.")
-
+def lex(text):
+  i = 0
+  d = []
+  while i < len(text):
+    if text[i] in " \n":
+      i += 1
+    elif text[i] in "+-*":  # Special characters
+        d.append( ("Operator", text[i]) )
+        i += 1
+    elif text[i] in "();=":
+        d.append( (text[i], "") )
+        i += 1
+    # identifier
+    elif re.match("[_a-zA-Z]", text[i] ):
+      prev = [ text[i] ]
+      i += 1
+      while re.match("[0-9a-zA-Z_]", text[i]):
+        prev.append( text[i] )
+        i += 1
+      #once it stops matching, save it as identifier
+      d.append( ("identifier", ''.join(prev) ) )
+    # literal
+    elif re.match("[0-9]", text[i] ):
+      prev = [ text[i] ]
+      i += 1
+      while re.match("[1-9]", prev[0]) and text[i].isnumeric():
+        prev.append( text[i] )
+        i += 1
+      d.append( ("literal", ''.join(prev) ) )
+    else:
+       raise Exception(
+                "Error during tokenization process! Unrecognized character: '" + text[i] + "'.")
+  return d
 
 class Parser:
 
